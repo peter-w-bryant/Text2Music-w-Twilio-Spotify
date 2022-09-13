@@ -7,7 +7,12 @@ import urllib
 import config
 
 # Account SID and Auth Token from www.twilio.com/console
-client = Client(config.TWILIO_ACCOUNT_SID, config.TWILIO_AUTH_TOKEN)
+# client = Client(config.TWILIO_ACCOUNT_SID, config.TWILIO_AUTH_TOKEN)
+TWILIO_ACCOUNT_SID='AC08b73f3f1a31c3f46351d02c295ffa78'
+TWILIO_AUTH_TOKEN='12f10aa52f034b946ac7e51872981b8b'
+client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
+
 app = Flask(__name__)
 
 
