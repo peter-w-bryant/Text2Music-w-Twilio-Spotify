@@ -27,7 +27,7 @@ def inbound_sms():
 
     # Create a phone call that uses our other route to play a song from Spotify.
     client.api.account.calls.create(to=from_number, from_=to_number,
-                        url='https://c22b-50-93-222-84.ngrok.io/call?track={}'
+                        url='https://sms-service-twilio-spotify.herokuapp.com/call?track={}'
                         .format(song_title))
 
     return str(response)
