@@ -7,11 +7,7 @@ import urllib
 import config
 
 # Account SID and Auth Token from www.twilio.com/console
-# client = Client(config.TWILIO_ACCOUNT_SID, config.TWILIO_AUTH_TOKEN)
-TWILIO_ACCOUNT_SID='AC08b73f3f1a31c3f46351d02c295ffa78'
-TWILIO_AUTH_TOKEN='12f10aa52f034b946ac7e51872981b8b'
-client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-
+client = Client(config.TWILIO_ACCOUNT_SID, config.TWILIO_AUTH_TOKEN)
 
 app = Flask(__name__)
 
@@ -21,7 +17,7 @@ app = Flask(__name__)
 def inbound_sms():
     response = MessagingResponse()
     response.message('Thanks for texting! Searching for your song now.'
-                     'Wait to receive a phone call :)')
+                     ' Wait to receive a phone call :)')
 
     # Grab the song title from the body of the text message.
     song_title = urllib.parse.quote(request.form['Body'])
@@ -32,7 +28,7 @@ def inbound_sms():
 
     # Create a phone call that uses our other route to play a song from Spotify.
     client.api.account.calls.create(to=from_number, from_=to_number,
-                        url='https://sms-service-twilio-spotify.herokuapp.com/call?track={}'
+                        url='https://c22b-50-93-222-84.ngrok.io/call?track={}'
                         .format(song_title))
 
     return str(response)
