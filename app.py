@@ -22,7 +22,7 @@ app.secret_key = config.secret_key
 @app.route('/sms', methods=['POST'])
 def inbound_sms():
     response = MessagingResponse()                                                           # Create a response object
-    response.message('Thanks for the song request! We are searching for the song now, .'     # Send a response text message to the user
+    response.message('Song request received - we are searching for the song now.'            # Send a response text message to the user
                      ' Wait for a phone call and follow the prompt to listen to the song.')
                      
     song_title = urllib.parse.quote(request.form['Body'])   # Access the song title from the body of the text message.
@@ -54,7 +54,7 @@ def create_spotify_oauth():
             client_id=config.client_id,
             client_secret=config.client_secret, 
             redirect_uri=url_for('authorize', _external=True),
-            scope="user-library-read user-read-recently-played user-read-private user-top-read user-read-currently-playing")
+            scope=config.scope)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
