@@ -4,7 +4,7 @@ A simple Flask application that uses the Twilio REST API to receive SMS messages
 ## Twilio Message Response
 <i>User requesting Michael Jackson's "Thriller".</i>
 
-![twilioResponseMessage](https://user-images.githubusercontent.com/72423203/190040265-d4159f6b-771c-424b-9f4c-c27d2653d9d2.png)
+<img src="https://user-images.githubusercontent.com/72423203/190040265-d4159f6b-771c-424b-9f4c-c27d2653d9d2.png" width="250" height="auto"/>
 
 ## Twilio Call Response
 <i>A few seconds later, the user receives a call from the same number playing a preview of the song from Spotify.</i>
