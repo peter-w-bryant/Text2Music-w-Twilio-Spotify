@@ -1,11 +1,15 @@
+# General Modules
+from flask import Flask, request, url_for, session, redirect
+import urllib
+# Spotify/Spotipy
 import spotify
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from flask import Flask, request, url_for, session, redirect
-from twilio.twiml.messaging_response import MessagingResponse, Message
-from twilio.twiml.voice_response import Play, VoiceResponse
+# Twilio
+from twilio.twiml.messaging_response import MessagingResponse
+from twilio.twiml.voice_response import VoiceResponse
 from twilio.rest import Client
-import urllib
+# Config (SECRET)
 import config
 
 # Account SID and Auth Token from www.twilio.com/console
@@ -14,58 +18,36 @@ client = Client(config.TWILIO_ACCOUNT_SID, config.TWILIO_AUTH_TOKEN)
 app = Flask(__name__)
 app.secret_key = config.secret_key
 
-# Create a route to authenticate the current user
-@app.route("/", methods=['POST', 'GET'])
-def OAuth():
-    sp_oauth = create_spotify_oauth()
-    auth_url = sp_oauth.get_authorize_url()
-    return redirect(auth_url)
-
-
-# Create a route to authenticate the current user
-@app.route("/authorize", methods=['POST', 'GET'])
-def authorize():
-    sp_oauth = create_spotify_oauth()
-    code = request.args.get('code')
-    token = sp_oauth.get_access_token(code)
-    access_token = token['access_token']
-    session['access_token'] = access_token
-    return redirect(url_for('inbound_sms'))
-
-
-# A route to respond to SMS messages and kick off a phone call.
+# SMS (Text): A route to respond to SMS messages with song titles and send a phone call.
 @app.route('/sms', methods=['POST'])
 def inbound_sms():
-    response = MessagingResponse()
-    response.message('Thanks for texting! Searching for your song now.'
-                     ' Wait to receive a phone call :)')
+    response = MessagingResponse()                                                           # Create a response object
+    response.message('Thanks for the song request! We are searching for the song now, .'     # Send a response text message to the user
+                     ' Wait for a phone call and follow the prompt to listen to the song.')
+                     
+    song_title = urllib.parse.quote(request.form['Body'])   # Access the song title from the body of the text message.
+    from_number = request.form['From']                      # Access the phone number of the user who sent the text message.
+    to_number = request.form['To']                          # Access the phone number of the Twilio number that received the text message.
 
-    # Grab the song title from the body of the text message.
-    song_title = urllib.parse.quote(request.form['Body'])
-
-    # Grab the relevant phone numbers.
-    from_number = request.form['From']
-    to_number = request.form['To']
-
-    # Create a phone call that uses our other route to play a song from Spotify.
+    # Create a phone call that uses a public URL to play a song from Spotify.
     client.api.account.calls.create(to=from_number, from_=to_number,
-                        url='https://1ddc-50-93-222-84.ngrok.io/call?track={}'
-                        .format(song_title))
-    return str(response)
+                        url='{}/call?track={}'
+                        .format(config.pub_url, song_title))
 
-
-# A route to handle the logic for phone calls.
+    return str(response)  # Return the response object as a string.
+ 
+# CALL: A route to handle the logic for the phone call.
 @app.route('/call', methods=['POST'])
 def outbound_call():
-    song_title = request.args.get('track')
-    track_url = spotify.get_track_url(song_title, config.access_token)
-    response = VoiceResponse()
-    response.play(track_url)
-    return str(response)
+    song_title = request.args.get('track')                              # Access the song title from the URL query string.
+    track_url = spotify.get_track_url(song_title, config.access_token)  # Get the URL for the song preview from Spotify.
+    response = VoiceResponse()                                          # Create a Voice response object.
+    response.play(track_url)                                            # Play the song preview from Spotify.
+    return str(response)                                                # Return the response object as a string.
 
 """
-Function to create a SpotifyOAuth object. This object is used to authenticate the user with Spotify. The scope determines what data we can access.
-In our case, we want the user-library-read scope, which allows us to read the user's saved tracks.
+Function to create a SpotifyOAuth object. This object is used to authenticate the user with Spotify, unused as of now
+because an access token is already generated and stored in config.py!
 """
 def create_spotify_oauth():
     return SpotifyOAuth(
